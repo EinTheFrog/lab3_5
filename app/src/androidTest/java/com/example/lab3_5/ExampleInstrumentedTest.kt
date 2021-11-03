@@ -1,7 +1,9 @@
 package com.example.myapplication
 
+import android.content.pm.ActivityInfo
 import android.view.Gravity
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
@@ -34,14 +36,14 @@ class NavigationTest {
     @Test
     fun testFragment1() {
         launchActivity<MainActivity>()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        checkFragment1()
     }
 
     @Test
     fun testFragment2() {
         launchActivity<MainActivity>()
         onView(withId(R.id.bnToSecond)).perform(click())
-        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
+        checkFragment2()
     }
 
     @Test
@@ -49,7 +51,7 @@ class NavigationTest {
         launchActivity<MainActivity>()
         onView(withId(R.id.bnToSecond)).perform(click())
         onView(withId(R.id.bnToThird)).perform(click())
-        onView(withId(R.id.fragment3)).check(matches(isDisplayed()))
+        checkFragment3()
     }
 
     @Test
@@ -57,7 +59,7 @@ class NavigationTest {
         launchActivity<MainActivity>()
         onView(withId(R.id.bnToSecond)).perform(click())
         pressBack()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        checkFragment1()
     }
 
     @Test
@@ -67,7 +69,7 @@ class NavigationTest {
         onView(withId(R.id.bnToThird)).perform(click())
         onView(withId(R.id.bnToSecond)).perform(click())
         pressBack()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        checkFragment1()
     }
 
     @Test
@@ -76,7 +78,7 @@ class NavigationTest {
         onView(withId(R.id.bnToSecond)).perform(click())
         onView(withId(R.id.bnToThird)).perform(click())
         pressBack()
-        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
+        checkFragment2()
     }
 
     @Test
@@ -84,7 +86,7 @@ class NavigationTest {
         launchActivity<MainActivity>()
         openAbout()
         pressBack()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        checkFragment1()
     }
 
     @Test
@@ -93,7 +95,7 @@ class NavigationTest {
         onView(withId(R.id.bnToSecond)).perform(click())
         openAbout()
         pressBack()
-        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
+        checkFragment2()
     }
 
     @Test
@@ -103,24 +105,24 @@ class NavigationTest {
         onView(withId(R.id.bnToThird)).perform(click())
         openAbout()
         pressBack()
-        onView(withId(R.id.fragment3)).check(matches(isDisplayed()))
+        checkFragment3()
     }
 
     @Test
     fun testOrientationChange1() {
         val activityScenario = launchActivity<MainActivity>()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
-        activityScenario.recreate()
-        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        checkFragment1()
+        changeScreenOrientation(activityScenario)
+        checkFragment1()
     }
 
     @Test
     fun testOrientationChange2() {
         val activityScenario = launchActivity<MainActivity>()
         onView(withId(R.id.bnToSecond)).perform(click())
-        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
-        activityScenario.recreate()
-        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
+        checkFragment2()
+        changeScreenOrientation(activityScenario)
+        checkFragment2()
     }
 
     @Test
@@ -128,9 +130,49 @@ class NavigationTest {
         val activityScenario = launchActivity<MainActivity>()
         onView(withId(R.id.bnToSecond)).perform(click())
         onView(withId(R.id.bnToThird)).perform(click())
+        checkFragment3()
+        changeScreenOrientation(activityScenario)
+        checkFragment3()
+    }
+
+    @Test
+    fun testOrientationChangeAbout() {
+        val activityScenario = launchActivity<MainActivity>()
+        openAbout()
+        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+        changeScreenOrientation(activityScenario)
+        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+    }
+
+    private fun checkFragment1() {
+        onView(withId(R.id.fragment1)).check(matches(isDisplayed()))
+        onView(withId(R.id.activity_main)).check(matches(isDisplayed()))
+        onView(withId(R.id.bnToSecond)).check(matches(isDisplayed()))
+    }
+
+    private fun checkFragment2() {
+        onView(withId(R.id.fragment2)).check(matches(isDisplayed()))
+        onView(withId(R.id.activity_main)).check(matches(isDisplayed()))
+        onView(withId(R.id.bnToFirst)).check(matches(isDisplayed()))
+        onView(withId(R.id.bnToThird)).check(matches(isDisplayed()))
+    }
+
+    private fun checkFragment3() {
         onView(withId(R.id.fragment3)).check(matches(isDisplayed()))
-        activityScenario.recreate()
-        onView(withId(R.id.fragment3)).check(matches(isDisplayed()))
+        onView(withId(R.id.activity_main)).check(matches(isDisplayed()))
+        onView(withId(R.id.bnToFirst)).check(matches(isDisplayed()))
+        onView(withId(R.id.bnToSecond)).check(matches(isDisplayed()))
+    }
+
+    private fun changeScreenOrientation(activityScenario: ActivityScenario<MainActivity>) {
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        Thread.sleep(500)
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        Thread.sleep(500)
     }
 
     private fun openAbout() {
