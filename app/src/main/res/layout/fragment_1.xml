@@ -3,11 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment1">
+    tools:context=".Fragment1"
+    android:id="@+id/fragment1">
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/drawer_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -21,12 +23,12 @@
                 android:text="@string/fragment_1"
                 android:textSize="20sp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/btnToSecond"
+                app:layout_constraintBottom_toTopOf="@id/bnToSecond"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintRight_toRightOf="parent" />
 
             <Button
-                android:id="@+id/btnToSecond"
+                android:id="@+id/bnToSecond"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/to_second"
@@ -49,7 +51,7 @@
                 android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/btnToAbout"
+                    android:id="@+id/bnToAbout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/to_about"
