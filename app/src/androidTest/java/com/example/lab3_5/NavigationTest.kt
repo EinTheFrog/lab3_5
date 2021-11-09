@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.lab3_5
 
 import android.content.pm.ActivityInfo
 import android.view.Gravity
