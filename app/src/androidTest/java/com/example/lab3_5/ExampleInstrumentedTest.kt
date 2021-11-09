@@ -11,11 +11,13 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.contrib.DrawerActions
 import com.example.lab3_5.MainActivity
 import com.example.lab3_5.R
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import androidx.test.espresso.contrib.NavigationViewActions
+import junit.framework.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -30,7 +32,7 @@ class NavigationTest {
     fun testAbout() {
         launchActivity<MainActivity>()
         openAbout()
-        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+        checkAbout()
     }
 
     @Test
@@ -52,6 +54,22 @@ class NavigationTest {
         onView(withId(R.id.bnToSecond)).perform(click())
         onView(withId(R.id.bnToThird)).perform(click())
         checkFragment3()
+    }
+
+    @Test
+    fun testBackFromFirst1() {
+        launchActivity<MainActivity>()
+        checkBackFromApp()
+    }
+
+    @Test
+    fun testBackFromFirst2() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        onView(withId(R.id.bnToFirst)).perform(click())
+        checkFragment1()
+        checkBackFromApp()
     }
 
     @Test
@@ -136,12 +154,178 @@ class NavigationTest {
     }
 
     @Test
-    fun testOrientationChangeAbout() {
+    fun testOrientationChangeAbout1() {
         val activityScenario = launchActivity<MainActivity>()
         openAbout()
-        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+        checkAbout()
         changeScreenOrientation(activityScenario)
-        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+        checkAbout()
+    }
+
+    @Test
+    fun testOrientationChangeAbout2() {
+        val activityScenario = launchActivity<MainActivity>()
+        openAbout()
+        checkAbout()
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        Thread.sleep(500)
+
+        pressBack()
+        checkFragment1()
+    }
+
+    @Test
+    fun testOrientationChangeAbout3() {
+        val activityScenario = launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+
+        openAbout()
+        checkAbout()
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        Thread.sleep(500)
+
+        pressBack()
+        checkFragment3()
+    }
+
+    @Test
+    fun testNavigateUp1() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+    @Test
+    fun testNavigateUp2() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment2()
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testNavigateUp3() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testNavigateUp4() {
+        val activityScenario = launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        onView(withId(R.id.bnToSecond)).perform(click())
+        changeScreenOrientation(activityScenario)
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testNavigateUpAbout1() {
+        launchActivity<MainActivity>()
+        openAbout()
+        checkAbout()
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testNavigateUpAbout2() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        openAbout()
+        checkAbout()
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment2()
+    }
+
+    @Test
+    fun testNavigateUpAbout3() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        openAbout()
+        checkAbout()
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment3()
+    }
+
+    @Test
+    fun testBackAfterNavigateUp() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        openAbout()
+        checkAbout()
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment2()
+        pressBack()
+        checkFragment1()
+    }
+
+    @Test
+    fun testNavigateUpAfterRotation() {
+        val activityScenario = launchActivity<MainActivity>()
+        openAbout()
+        checkAbout()
+        changeScreenOrientation(activityScenario)
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testFragment1Buttons() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        checkFragment2()
+        pressBack()
+        openAbout()
+        checkAbout()
+        pressBack()
+        Thread.sleep(100)
+        checkFragment1()
+    }
+
+    @Test
+    fun testFragment2Buttons() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        checkFragment3()
+        pressBack()
+        openAbout()
+        checkAbout()
+        pressBack()
+        Thread.sleep(100)
+        onView(withId(R.id.bnToFirst)).perform(click())
+        checkFragment1()
+    }
+
+    @Test
+    fun testFragment3Buttons() {
+        launchActivity<MainActivity>()
+        onView(withId(R.id.bnToSecond)).perform(click())
+        onView(withId(R.id.bnToThird)).perform(click())
+        onView(withId(R.id.bnToSecond)).perform(click())
+        checkFragment2()
+        onView(withId(R.id.bnToThird)).perform(click())
+        openAbout()
+        checkAbout()
+        pressBack()
+        Thread.sleep(100)
+        onView(withId(R.id.bnToFirst)).perform(click())
+        checkFragment1()
     }
 
     private fun checkFragment1() {
@@ -164,6 +348,11 @@ class NavigationTest {
         onView(withId(R.id.bnToSecond)).check(matches(isDisplayed()))
     }
 
+    private fun checkAbout() {
+        onView(withId(R.id.activity_about)).check(matches(isDisplayed()))
+        onView(withId(R.id.tvAbout)).check(matches(isDisplayed()))
+    }
+
     private fun changeScreenOrientation(activityScenario: ActivityScenario<MainActivity>) {
         activityScenario.onActivity { activity ->
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -175,12 +364,22 @@ class NavigationTest {
         Thread.sleep(500)
     }
 
+    private fun checkBackFromApp() {
+        try {
+            pressBack()
+            fail("Should have thrown NoActivityResumedException")
+        } catch (expected: NoActivityResumedException) {
+        }
+    }
+
     private fun openAbout() {
+        // Open Drawer to click on navigation.
         onView(withId(R.id.drawer_layout))
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open()); // Open Drawer
 
         // Start the screen of your activity.
-        onView(withId(R.id.bnToAbout)).perform(click())
+        onView(withId(R.id.nav_view))
+            .perform(NavigationViewActions.navigateTo(R.id.activityAbout))
     }
 }
